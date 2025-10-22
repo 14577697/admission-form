@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>录取人员信息录入</title>
+  <style>
+    :root{--bg:#f6f8fb;--card:#ffffff;--accent:#2563eb;--muted:#6b7280}
+    *{box-sizing:border-box}
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,'Helvetica Neue',Arial; margin:0; background:var(--bg); color:#111}
+    .wrap{max-width:900px;margin:48px auto;padding:24px}
+    header{display:flex;align-items:center;justify-content:space-between;gap:16px}
+    h1{margin:0;font-size:1.5rem}
+    p.lead{margin:4px 0 0;color:var(--muted)}
+    .card{background:var(--card);border-radius:12px;padding:20px;margin-top:18px;box-shadow:0 6px 18px rgba(17,24,39,0.06)}
+    table{width:100%;border-collapse:collapse;margin-top:12px}
+    thead th{text-align:left;padding:12px 8px;border-bottom:1px solid #e6e9ef;color:var(--muted);font-size:0.9rem}
+    tbody td{padding:12px 8px;border-bottom:1px solid #f1f3f6}
+    tbody tr:last-child td{border-bottom:none}
+    .actions{display:flex;gap:8px}
+    button{background:var(--accent);color:#fff;border:0;padding:8px 12px;border-radius:8px;cursor:pointer;font-weight:600}
+    button.secondary{background:#374151}
+    form{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-top:12px}
+    label{font-weight:600;font-size:0.9rem}
+    input{padding:8px;border:1px solid #d1d5db;border-radius:8px;width:100%}
+    @media (max-width:560px){h1{font-size:1.25rem}.wrap{margin:24px 12px}}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div>
+        <h1>录取人员信息录入</h1>
+        <p class="lead">请填写录取人员信息并保存。</p>
+      </div>
+      <div class="actions">
+        <button id="downloadBtn">下载 HTML 文件</button>
+        <button id="printBtn" class="secondary">打印 / 导出 PDF</button>
+      </div>
+    </header>
+
+    <section class="card">
+      <form id="addForm">
+        <div>
+          <label for="name">姓名</label>
+          <input id="name" name="name" required />
+        </div>
+        <div>
+          <label for="major">专业</label>
+          <input id="major" name="major" required />
+        </div>
+        <div>
+          <label for="studentId">学号</label>
+          <input id="studentId" name="studentId" required />
+        </div>
+        <div>
+          <label for="dept">院系</label>
+          <input id="dept" name="dept" required />
+        </div>
+        <div>
+          <label for="contact">联系方式</label>
+          <input id="contact" name="contact" required />
+        </div>
+        <div style="grid-column:1/-1;text-align:right">
+          <button type="submit">添加到名单</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="card">
+      <h2 style="margin-top:0;font-size:1.2rem">录取名单</h2>
+      <table id="resultTable" aria-label="录取名单表格">
+        <thead>
+          <tr>
+            <th>序号</th>
+            <th>姓名</th>
+            <th>专业</th>
+            <th>学号</th>
+            <th>院系</th>
+            <th>联系方式</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </section>
+
+    <footer style="margin-top:14px;color:var(--muted);font-size:0.9rem">生成时间：<span id="timestamp"></span></footer>
+  </div>
+
+  <script>
+    const form = document.getElementById('addForm');
+    const tableBody = document.querySelector('#resultTable tbody');
+    const timestampEl = document.getElementById('timestamp');
+
+    timestampEl.textContent = new Date().toLocaleString();
+
+    let count = 0;
+    form.addEventListener('submit', function(e){
+      e.preventDefault();
+      count++;
+      const data = new FormData(form);
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td>${count}</td>
+        <td>${data.get('name')}</td>
+        <td>${data.get('major')}</td>
+        <td>${data.get('studentId')}</td>
+        <td>${data.get('dept')}</td>
+        <td>${data.get('contact')}</td>
+      `;
+      tableBody.appendChild(row);
+      form.reset();
+    });
+
+    document.getElementById('downloadBtn').addEventListener('click', function(){
+      const html = '<!doctype html>\n' + document.documentElement.outerHTML;
+      const blob = new Blob([html], {type: 'text/html'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = '录取人员信息录入.html';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    });
+
+    document.getElementById('printBtn').addEventListener('click', function(){
+      window.print();
+    });
+  </script>
+</body>
+</html>
